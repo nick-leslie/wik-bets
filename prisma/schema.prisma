@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator kysely {
+  provider = "prisma-kysely"
+
+  // Optionally provide a destination directory for the generated file
+  // and a filename of your choice
+  output       = "../src/db"
+  fileName     = "types.ts"
+  // Optionally generate runtime enums to a separate file
+  enumFileName = "enums.ts"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String  @id @unique @default(dbgenerated("(uuid())"))
+  email   String    @unique
+  points  Int
+  History History[]
+}
+
+model Clip {
+  id        String  @id @unique @default(dbgenerated("(uuid())"))
+  kill    Boolean
+  history History[]
+}
+
+model History {
+  id        String  @id @unique @default(dbgenerated("(uuid())"))
+  user      User    @relation(references: [id], fields: [userId])
+  userId    String
+  clip      Clip    @relation(fields: [clipId], references: [id])
+  clipId    String
+  vote      Boolean
+}
