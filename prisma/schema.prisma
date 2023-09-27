@@ -1,5 +1,10 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
 
 generator kysely {
   provider = "prisma-kysely"
@@ -12,29 +17,28 @@ generator kysely {
   enumFileName = "enums.ts"
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 model User {
-  id        String  @id @unique @default(dbgenerated("(uuid())"))
-  email   String    @unique
-  points  Int
-  History History[]
+  id       String    @id @unique @default(dbgenerated("(uuid())"))
+  userName String    @unique
+  email    String    @unique
+  points   Int
+  History  History[]
 }
 
 model Clip {
-  id        String  @id @unique @default(dbgenerated("(uuid())"))
+  id      String    @id @unique @default(dbgenerated("(uuid())"))
   kill    Boolean
   history History[]
 }
 
 model History {
-  id        String  @id @unique @default(dbgenerated("(uuid())"))
-  user      User    @relation(references: [id], fields: [userId])
-  userId    String
-  clip      Clip    @relation(fields: [clipId], references: [id])
-  clipId    String
-  vote      Boolean
+  id     String  @id @unique @default(dbgenerated("(uuid())"))
+  user   User    @relation(references: [id], fields: [userId])
+  userId String
+  clip   Clip    @relation(fields: [clipId], references: [id])
+  clipId String
+  vote   Boolean
+
+  @@index([clipId])
+  @@index([userId])
 }

@@ -1,6 +1,13 @@
 import NextAuth, {NextAuthOptions} from 'next-auth'
 import Google from 'next-auth/providers/google'
-
+import { db } from '@/db/database'
+import {User} from "@/db/types";
+import { uniqueNamesGenerator, Config, colors, animals } from 'unique-names-generator';
+const customConfig: Config = {
+    dictionaries: [colors,animals],
+    separator: '-',
+    length: 2,
+};
 export const authOptions:NextAuthOptions = {
     providers: [
         Google({
@@ -19,7 +26,20 @@ export const authOptions:NextAuthOptions = {
     ],
     callbacks: {
         async signIn({ user, account, profile, email, credentials }) {
-            return "/unauthorized";
+            console.log(user)
+            if(user.email != undefined) {
+                let DbUser:User | undefined = await db.selectFrom("User").selectAll().where('email','=',user.email).executeTakeFirst();
+                console.log(DbUser)
+                if(DbUser == undefined) {
+                    let newUser = await db.insertInto("User").values({
+                        email: user.email,
+                        userName:uniqueNamesGenerator(customConfig),
+                        points: 8000
+                    }).executeTakeFirst();
+                    console.log(newUser);
+                }
+            }
+            return true
         },
     },
     pages: {
