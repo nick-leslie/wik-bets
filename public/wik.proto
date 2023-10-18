@@ -1,0 +1,20 @@
+syntax = 'proto2';
+package wik;
+option go_package = "github.com/nick-leslie/proto/wik-bet-backend";
+message ws_message {
+  enum command {
+    REGISTER = 0;
+    BET = 1;
+    QUIT = 2;
+    CREATE_CLIP = 3;
+    PAYOUT = 4;
+  }
+  required command cmd = 1;
+  message player {
+    required string username = 1;
+  }
+  message bet {
+    required int64 points =1;
+    required bool vote = 2;
+  }
+}

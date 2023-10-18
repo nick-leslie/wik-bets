@@ -1,7 +1,7 @@
 import NextAuth, {NextAuthOptions} from 'next-auth'
 import Google from 'next-auth/providers/google'
 import { db } from '@/db/database'
-import {User} from "@/db/types";
+import {DB, User} from "@/db/types";
 import { uniqueNamesGenerator, Config, colors, animals } from 'unique-names-generator';
 const customConfig: Config = {
     dictionaries: [colors,animals],
@@ -28,7 +28,7 @@ export const authOptions:NextAuthOptions = {
         async signIn({ user, account, profile, email, credentials }) {
             console.log(user)
             if(user.email != undefined) {
-                let DbUser:User | undefined = await db.selectFrom("User").selectAll().where('email','=',user.email).executeTakeFirst();
+                let DbUser = await db.selectFrom("User").selectAll().where('email','=',user.email).executeTakeFirst();
                 console.log(DbUser)
                 if(DbUser == undefined) {
                     let newUser = await db.insertInto("User").values({

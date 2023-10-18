@@ -1,6 +1,6 @@
 import {NextRequest, NextResponse} from "next/server";
 import {db} from "@/db/database";
-import {UserRequestBody} from "@/db/types";
+import {UserRequestBody} from "@/db/customTypes";
 
 export function GET() {
     return NextResponse.json(db.selectFrom('User').selectAll().executeTakeFirst())

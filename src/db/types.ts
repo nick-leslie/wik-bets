@@ -4,9 +4,11 @@ export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   : ColumnType<T, T | undefined, T>;
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
+import type { kill_state } from "./enums";
+
 export type Clip = {
     id: Generated<string>;
-    kill: number;
+    kill: kill_state;
 };
 export type History = {
     id: Generated<string>;
@@ -19,6 +21,7 @@ export type User = {
     userName: string;
     email: string;
     points: number;
+    isAdmin: Generated<number>;
 };
 export type DB = {
     Clip: Clip;

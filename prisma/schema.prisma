@@ -22,12 +22,13 @@ model User {
   userName String    @unique
   email    String    @unique
   points   Int
+  isAdmin Boolean @default(false)
   History  History[]
 }
 
 model Clip {
   id      String    @id @unique @default(dbgenerated("(uuid())"))
-  kill    Boolean
+  kill    kill_state
   history History[]
 }
 
@@ -41,4 +42,10 @@ model History {
 
   @@index([clipId])
   @@index([userId])
+}
+
+enum kill_state {
+  UNDESIDED
+  KILL
+  NO_KILL
 }
