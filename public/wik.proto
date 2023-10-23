@@ -10,11 +10,20 @@ message ws_message {
     PAYOUT = 4;
   }
   required command cmd = 1;
-  message player {
-    required string username = 1;
-  }
-  message bet {
-    required int64 points =1;
-    required bool vote = 2;
-  }
+  optional player player = 2;
+  optional bet bet = 3;
+}
+message player {
+  required string username = 1;
+  required bool isAdmin = 2;
+}
+message bet {
+  required int64 points =1;
+  required bool vote = 2;
+}
+
+message clip {
+  repeated string yesPlayers = 1;
+  repeated string noPlayers = 2;
+  required bool status = 3;
 }

@@ -7,11 +7,11 @@ export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 import type { kill_state } from "./enums";
 
 export type Clip = {
-    id: Generated<string>;
+    id: Generated<string> | string;
     kill: kill_state;
 };
 export type History = {
-    id: Generated<string>;
+    id: Generated<string> | string;
     userId: string;
     clipId: string;
     vote: number;
@@ -21,7 +21,7 @@ export type User = {
     userName: string;
     email: string;
     points: number;
-    isAdmin: Generated<number>;
+    isAdmin: Generated<number> | number;
 };
 export type DB = {
     Clip: Clip;

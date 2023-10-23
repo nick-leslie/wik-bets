@@ -1,4 +1,5 @@
 import {NotificationBody} from "@/app/componets/popup/notification/NotificationBody";
+import {DefaultEventBus} from "@/eventBus/EventBus";
 
 export function ErrorNotification(props:{title:string,text:string}) {
     return(
@@ -16,4 +17,14 @@ export function ErrorNotification(props:{title:string,text:string}) {
 </g>
 </svg>} title={"Error:"+props.title} text={props.text}></NotificationBody>
     )
+}
+
+export function createErrorNotif(eventBus:DefaultEventBus,errTitle:string,errBody:string) {
+    eventBus.fire("createNotification", {
+        notification: <ErrorNotification text={"web socket is null"} title={"ws err"}/>,
+        color: "red",
+        pos: 3,
+        classname: "",
+        lifeTime: 2000
+    })
 }
