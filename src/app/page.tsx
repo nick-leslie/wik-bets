@@ -1,14 +1,10 @@
 import Image from 'next/image'
 import wikBanner from '@/pictures/wikBanner.png'
 import {LogoutButton} from "@/app/componets/auth/LogoutButton";
-import {LoginBoundry} from "@/app/componets/auth/LoginBoundry";
-import {UserCard} from "@/app/componets/user/UserCard";
 import {WikStyleBox} from "@/app/componets/wikLogoStuff/WikStyleBox";
 import {WikText} from "@/app/componets/wikLogoStuff/WikText";
-import {BetsCard} from "@/app/componets/bets/BetsCard";
 import React from "react";
-import {UserContextProvider} from "@/app/componets/user/userContext";
-import {NotificationManager} from "@/app/componets/popup/notification/NotificationManager";
+import {IndexClientCode} from "@/app/IndexClientCode";
 export default function Home() {
     return (
         <>
@@ -21,14 +17,7 @@ export default function Home() {
                     <LogoutButton></LogoutButton>
                 </div>
             </div>
-                    <LoginBoundry>
-                        <div>
-                            <UserContextProvider>
-                                <UserCard></UserCard>
-                                <BetsCard></BetsCard>
-                            </UserContextProvider>
-                        </div>
-                </LoginBoundry>
+            <IndexClientCode></IndexClientCode>
         </>
     )
 }

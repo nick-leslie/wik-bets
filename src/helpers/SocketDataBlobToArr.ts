@@ -1,4 +1,4 @@
-function SocketDataBlobToArr(data:any,bufferCallback:(buffer:Uint8Array)=>void) {
+export function SocketDataBlobToArr(data:any,bufferCallback:(buffer:Uint8Array)=>void) {
     let reader = new FileReader()
     reader.readAsArrayBuffer(data);
     reader.addEventListener("loadend", function(e)

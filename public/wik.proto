@@ -8,6 +8,7 @@ message ws_message {
     QUIT = 2;
     CREATE_CLIP = 3;
     PAYOUT = 4;
+    NOOP = 5;
   }
   required command cmd = 1;
   optional player player = 2;

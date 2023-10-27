@@ -65,25 +65,24 @@ func main() {
 }
 
 func handleClient(conn *websocket.Conn) {
-	for true {
-		defer func(conn *websocket.Conn) {
-			err := conn.Close()
-			if err != nil {
+	defer func(conn *websocket.Conn) {
+		err := conn.Close()
+		if err != nil {
 
-			}
-		}(conn)
+		}
+	}(conn)
+	for true {
 		message := wik_bet_backend.WsMessage{}
 		_, msg, readErr := conn.ReadMessage()
 		if readErr != nil {
 			fmt.Printf("closed connection")
 			manager.removePlayerFromCon(conn)
-			fmt.Printf("%+v\n", manager)
+			fmt.Printf("%+v\n", readErr)
 			return
 		}
 		protoErr := proto.Unmarshal(msg, &message)
 		cmd := message.GetCmd()
 		fmt.Printf("%s\n", message.String())
-		fmt.Printf("%+v\n", manager)
 		switch cmd {
 		case wik_bet_backend.WsMessage_REGISTER:
 			username := message.GetPlayer().GetUsername()
@@ -114,11 +113,25 @@ func handleClient(conn *websocket.Conn) {
 			return
 		case wik_bet_backend.WsMessage_CREATE_CLIP:
 			manager.makeCLip()
+			createClipMsg := wik_bet_backend.WsMessage{
+				Cmd:    wik_bet_backend.WsMessage_CREATE_CLIP.Enum(),
+				Player: nil,
+				Bet:    nil,
+			}
+			msgBytes, protoMarsalErr := proto.Marshal(&createClipMsg)
+			if protoMarsalErr != nil {
+				return
+			}
+			brodCastErr := manager.broadCastMessage(msgBytes)
+			if brodCastErr != nil {
+				return
+			}
 			//TODO do sql stuff here ?
 			break
 		case wik_bet_backend.WsMessage_PAYOUT:
 			break
-
+		case wik_bet_backend.WsMessage_NOOP:
+			break
 		}
 		if protoErr != nil {
 			//BAD dont go here do somthing :)
@@ -136,18 +149,22 @@ func makeManager() bets_manager {
 	return manager
 }
 
-func (bm *bets_manager) broadCastMessage(msg []byte) {
-
+func (bm *bets_manager) broadCastMessage(msg []byte) error {
 	for _, v := range bm.playersPlaying {
-		writer, createWriteErr := v.NextWriter(2)
-		if createWriteErr != nil {
-			return
-		}
-		_, err := writer.Write(msg)
-		if err != nil {
-			return
+		writeErr := sendMsg(msg, v)
+		if writeErr != nil {
+			return writeErr
 		}
 	}
+	return nil
+}
+
+func sendMsg(msg []byte, conn *websocket.Conn) error {
+	err := conn.WriteMessage(2, msg)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (bm *bets_manager) addPlayer(name string, conn *websocket.Conn) {
@@ -169,6 +186,23 @@ func (bm *bets_manager) removePlayer(name string) {
 		delete(bm.playersPlaying, name)
 	}
 }
+func (bm *bets_manager) sendNoOP() error {
+	noOP := wik_bet_backend.WsMessage{
+		Cmd:    wik_bet_backend.WsMessage_NOOP.Enum(),
+		Player: nil,
+		Bet:    nil,
+	}
+	noOpBytes, _ := proto.Marshal(&noOP)
+	for _, v := range bm.playersPlaying {
+		fmt.Printf("sent no op")
+		writeErr := sendMsg(noOpBytes, v)
+		if writeErr != nil {
+			return writeErr
+		}
+	}
+	return nil
+}
+
 func (bm *bets_manager) removePlayerFromCon(conn *websocket.Conn) {
 	name := bm.connToUsername[conn]
 	if _, ok := bm.connToUsername[conn]; ok {

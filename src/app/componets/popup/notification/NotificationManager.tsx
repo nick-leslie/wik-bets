@@ -1,13 +1,24 @@
 "use client"
 import {Context, createContext, ReactNode, useContext, useState} from "react";
-import {DefaultEventBus} from "@/eventBus/EventBus";
+import {DefaultEventBus, EventBusEvent} from "@/eventBus/EventBus";
 import {NotificationEvent} from "@/app/componets/popup/notification/NotificationEvent";
 import {NotificationBody} from "@/app/componets/popup/notification/NotificationBody";
 import {NotificationElement} from "@/app/componets/popup/notification/NotificationElement";
 import {User} from "@/db/types";
 import {twMerge} from "tailwind-merge";
 export let NotificationEventContext:Context<DefaultEventBus>= createContext<DefaultEventBus>( new DefaultEventBus())
+export class WebsocketEvent implements EventBusEvent<wsPayload>{
+    subscriptions: { (data: wsPayload): void }[];
+    constructor() {
+        this.subscriptions = [];
+    }
 
+    fire(data:wsPayload): void {
+        for (let i = 0; i < this.subscriptions.length; i++) {
+            this.subscriptions[i](data);
+        }
+    }
+}
 export function NotificationManager(props:{children:ReactNode}) {
     let notificationBus = new DefaultEventBus();
     let [notificationList,setNotificationList] = useState<ReactNode[][]>([[],[],[],[]]);
@@ -16,7 +27,6 @@ export function NotificationManager(props:{children:ReactNode}) {
     notifEvent.subscriptions.push((notif) => {
         //TODO setup a system to
         let newList = notificationList;
-        console.log("test")
         newList[notif.pos].push(
             <NotificationElement className={notif.classname} color={notif.color} pos={notif.pos}>
                 {notif.notification}
@@ -29,6 +39,7 @@ export function NotificationManager(props:{children:ReactNode}) {
         },notif.lifeTime)
         setNotificationList([...newList])
     });
+
     //TODO have a bunch of containers on each norners
     return(
         <NotificationEventContext.Provider value={notificationBus}>
@@ -52,8 +63,8 @@ export function NotificationManager(props:{children:ReactNode}) {
                             break;
                     }
                     return (<div className={twMerge("absolute flex flex-col gap-5",posClass)} key={"notification list pos" + index}>
-                        {notifPosList.map((notif) => {
-                            return notif;
+                        {notifPosList.map((notif,index) => {
+                            return <div key={index}>{notif}</div>;
                         })}
                     </div>)
                 })}
